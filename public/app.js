@@ -101,7 +101,55 @@ function renderNotes() {
 /* =========================
 SEARCH NOTES
 ========================= */
-// Add a typing suggestion feature 
+
+searchInput.addEventListener('input', () => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredNotes = notes.filter(note =>{
+        const matchesFilter = currentFilter === "All" || note.category === currentFilter;
+        const matchesSearch = note.title.toLowerCase().includes(searchTerm) || note.content.toLowerCase().includes(searchTerm);
+        return matchesFilter && matchesSearch;
+    })
+
+    //Render the filtered notes
+    notesList.innerHTML = "";
+
+    if(!filteredNotes.length){
+        notesList.innerHTML = "<p>No notes found.</p>";
+        return;
+    }
+
+    filtered.forEach(note => {
+        const card = document.createElement("div");
+        card.className = `card note-card ${note.isCompleted ? "completed" : ""}`;
+
+        card.innerHTML = `
+            <div class="note-header">
+                <h3>${note.title}</h3>
+                <span class="category ${note.category.toLowerCase()}">
+                    ${note.category}
+                </span>
+            </div>
+            <p>${note.content}</p>
+            <div class="note-footer">
+                <small>📅 ${note.reminderDate || "No reminder"}</small>
+                <div class="actions">
+                    <button class="done-btn"><img src="icons/checked.png" alt="check" class="notes-btn"/></button>
+                    <button class="edit-btn"><img src="icons/pen.png" alt="check" class="notes-btn"/></button>
+                    <button class="delete-btn"><img src="icons/delete.png" alt="check" class="notes-btn"/></button>
+                </div>
+            </div>
+        `;
+
+        card.querySelector(".done-btn").onclick = () =>
+            toggleComplete(note.id);
+        card.querySelector(".delete-btn").onclick = () =>
+            deleteNote(note.id);
+        card.querySelector(".edit-btn").onclick = () =>
+            startEdit(note);
+
+        notesList.appendChild(card);
+    });
+});
 
 /* =========================
 ADD / EDIT NOTE
@@ -149,6 +197,30 @@ function startEdit(note) {
 DELETE / COMPLETE
 ========================= */
 // For deleting note/s
+
+async function deleteNote(id) {
+    if (!confirm("Are you sure you want to delete this note?")) {
+        await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+        fetchNotes();
+    }
+}
+
+// For marking note as complete/incomplete
+async function toggleComplete(id) {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    note.isCompleted = !note.isCompleted;
+
+    await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(note)
+    });
+    fetchNotes();
+}
+
 
 /* =========================
 FILTERS
