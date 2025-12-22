@@ -211,21 +211,34 @@ async function deleteNote(id) {
 async function toggleComplete(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
-    note.isCompleted = !note.isCompleted;
 
-    await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(note)
-    });
-    fetchNotes();
+    const updatedNote = { ...note, isCompleted: !note.isCompleted };
+
+    try {
+        await fetch(${API_URL}/${id}, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedNote)
+        });
+        fetchNotes();
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
 }
 
 
 /* =========================
 FILTERS
 ========================= */
-// Filter for school and personal section
+filterButtons.forEach(btn => {
+    btn.onclick = () => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.innerText; 
+        
+        renderNotes();
+    };
+});
 
 /* =========================
 REMINDER NOTIFICATIONS
