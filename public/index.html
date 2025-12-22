@@ -8,16 +8,13 @@
 </head>
 <body>
 
-    <!-- App Header -->
     <header class="app-header">
         <h1>Student Notes & Reminders</h1>
         <button id="themeToggle">🌙</button>
     </header>
 
-    <!-- Main Container -->
     <main class="container">
 
-        <!-- Add / Edit Note Form -->
         <section class="card form-card">
             <h2>Add Note</h2>
 
@@ -41,29 +38,30 @@
             </form>
         </section>
 
-        <!-- Filter Buttons -->
         <section class="filters">
             <button class="filter-btn active">All</button>
             <button class="filter-btn">School</button>
             <button class="filter-btn">Personal</button>
         </section>
 
-        <!-- Search Bar -->
-        <!--Note to gmates:
-        1. the class must be search-bar (may css na for this)
-
-        -->
-
-        <!-- Notes List -->
-        <section class="notes-list">
+        <section class="search-container">
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-bar" 
+                placeholder="Search notes by title or content..." 
+            />
         </section>
 
+        <section class="notes-list">
+            </section>
+
     </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 Credits: Alzaga, Arevalo, Letada</p>
+    </footer>
+
     <script src="app.js"></script>
-
-
 </body>
-<footer class="app-footer">
-    <p>&copy; 2025 Credits: Alzaga, Arevalo, Letada</p>
-</footer>
 </html>
