@@ -48,7 +48,7 @@ GLOBAL STYLES
 ========================= */
 * {
     box-sizing: border-box;
-    font-family: "Press Start 2P", monospace; /* pixel RPG font */
+    font-family: "Press Start 2P", monospace;
 }
 
 body {
@@ -56,6 +56,11 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background 0.2s, color 0.2s;
+    min-height: 100vh;
+}
+
+main.container {
+    flex: 1; 
 }
 
 /* =========================
@@ -288,7 +293,6 @@ COMPLETED NOTES
     font-size: 0.7rem;
     border-top: 2px solid #000;
     text-shadow: 1px 1px 0 #000;
-    position: relative;
 }
 
 body.dark .app-footer {

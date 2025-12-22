@@ -55,7 +55,7 @@ app.patch("/api/notes/:id/complete", (req, res) => {
     let notes = readNotes();
     notes = notes.map(note => note.id === req.params.id ? { ...note, isCompleted: !note.isCompleted } : note);
     writeNotes(notes);
-    res.json({ message: "Status updated" });
+    res.json({ message: "Status updated" });``
 });
 
 // Start server
