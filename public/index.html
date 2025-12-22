@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Notes & Reminders</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- App Header -->
+    <header class="app-header">
+        <h1>Student Notes & Reminders</h1>
+        <button id="themeToggle">🌙</button>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Add / Edit Note Form -->
+        <section class="card form-card">
+            <h2>Add Note</h2>
+
+            <form id="noteForm">
+                <input type="text" placeholder="Title" required />
+
+                <textarea placeholder="Write your note here..." required></textarea>
+
+                <div class="form-row">
+                    <select>
+                        <option value="School">School</option>
+                        <option value="Personal">Personal</option>
+                    </select>
+
+                    <input type="date" />
+                </div>
+
+                <button type="submit" class="primary-btn">
+                    Save Note
+                </button>
+            </form>
+        </section>
+
+        <!-- Filter Buttons -->
+        <section class="filters">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">School</button>
+            <button class="filter-btn">Personal</button>
+        </section>
+
+        <!-- Search Bar -->
+        <!--Note to gmates:
+        1. the class must be search-bar (may css na for this)
+        
+        -->
+
+        <!-- Notes List -->
+        <section class="notes-list">
+        </section>
+
+    </main>
+    <script src="app.js"></script>
+
+<footer class="app-footer">
+    <p>&copy; 2025 Credits: Alzaga, Arevalo, Letada</p>
+</footer>
+</body>
+
+</html>
