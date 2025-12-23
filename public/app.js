@@ -2,10 +2,10 @@
 API ENDPOINTS
 ========================= */
 const API = {
-    GET: "api/getNotes",
-    ADD: "api/addNote",
-    EDIT: "api/editNote",
-    DELETE: "api/deleteNote"
+    GET: "/api/getNotes",
+    ADD: "/api/addNote",
+    EDIT: "/api/editNote",
+    DELETE: "/api/deleteNote"
 };
 
 /* =========================
@@ -45,10 +45,15 @@ if ("Notification" in window && Notification.permission === "default") {
 FETCH NOTES
 ========================= */
 async function fetchNotes() {
-    const res = await fetch(API.GET);
-    notes = await res.json();
-    renderNotes();
-    checkReminders();
+    try {
+        const res = await fetch(API.GET);
+        notes = await res.json();
+        renderNotes();
+        checkReminders();
+    } catch (err) {
+        console.error("Error fetching notes:", err);
+        notesList.innerHTML = "<p>Unable to fetch notes.</p>";
+    }
 }
 
 /* =========================
@@ -81,21 +86,16 @@ function renderNotes() {
             <div class="note-footer">
                 <small>📅 ${note.reminderDate || "No reminder"}</small>
                 <div class="actions">
-                    <button class="done-btn"><img src="icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="icons/pen.png" alt="edit" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="icons/delete.png" alt="delete" class="notes-btn"/></button>
+                    <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
+                    <button class="edit-btn"><img src="/icons/pen.png" alt="edit" class="notes-btn"/></button>
+                    <button class="delete-btn"><img src="/icons/delete.png" alt="delete" class="notes-btn"/></button>
                 </div>
             </div>
         `;
 
-        card.querySelector(".done-btn").onclick = () =>
-            toggleComplete(note.id);
-
-        card.querySelector(".delete-btn").onclick = () =>
-            deleteNote(note.id);
-
-        card.querySelector(".edit-btn").onclick = () =>
-            startEdit(note);
+        card.querySelector(".done-btn").onclick = () => toggleComplete(note.id);
+        card.querySelector(".delete-btn").onclick = () => deleteNote(note.id);
+        card.querySelector(".edit-btn").onclick = () => startEdit(note);
 
         notesList.appendChild(card);
     });
@@ -141,12 +141,9 @@ searchInput.addEventListener('input', (e) => {
             </div>
         `;
 
-        card.querySelector(".done-btn").onclick = () =>
-            toggleComplete(note.id);
-        card.querySelector(".delete-btn").onclick = () =>
-            deleteNote(note.id);
-        card.querySelector(".edit-btn").onclick = () =>
-            startEdit(note);
+        card.querySelector(".done-btn").onclick = () => toggleComplete(note.id);
+        card.querySelector(".delete-btn").onclick = () => deleteNote(note.id);
+        card.querySelector(".edit-btn").onclick = () => startEdit(note);
 
         notesList.appendChild(card);
     });
@@ -166,23 +163,27 @@ form.onsubmit = async (e) => {
         isCompleted: false
     };
 
-    if (editId) {
-        await fetch(API.EDIT, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...noteData, id: editId })
-        });
-        editId = null;
-    } else {
-        await fetch(API.ADD, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(noteData)
-        });
-    }
+    try {
+        if (editId) {
+            await fetch(`${API.EDIT}?id=${editId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(noteData)
+            });
+            editId = null;
+        } else {
+            await fetch(API.ADD, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(noteData)
+            });
+        }
 
-    form.reset();
-    fetchNotes();
+        form.reset();
+        fetchNotes();
+    } catch (err) {
+        console.error("Error saving note:", err);
+    }
 };
 
 function startEdit(note) {
@@ -199,29 +200,28 @@ DELETE / COMPLETE
 async function deleteNote(id) {
     if (!confirm("Are you sure you want to delete this note?")) return;
 
-    await fetch(API.DELETE, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-    });
-
-    fetchNotes();
+    try {
+        await fetch(`${API.DELETE}?id=${id}`, { method: "DELETE" });
+        fetchNotes();
+    } catch (err) {
+        console.error("Error deleting note:", err);
+    }
 }
 
 async function toggleComplete(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
-    await fetch(API.EDIT, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            ...note,
-            isCompleted: !note.isCompleted
-        })
-    });
-
-    fetchNotes();
+    try {
+        await fetch(`${API.EDIT}?id=${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...note, isCompleted: !note.isCompleted })
+        });
+        fetchNotes();
+    } catch (err) {
+        console.error("Error toggling note:", err);
+    }
 }
 
 /* =========================

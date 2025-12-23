@@ -5,7 +5,9 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { title, content, category, reminderDate, isCompleted } = req.body;
-        const { data, error } = await supabase.from('notes').insert([{ title, content, category, reminderDate, isCompleted }]);
+        const { data, error } = await supabase
+        .from('notes')
+        .insert([{ title, content, category, reminderDate, isCompleted }]);
         if (error) return res.status(500).json({ error: error.message });
         res.status(200).json(data[0]);
     } else {
