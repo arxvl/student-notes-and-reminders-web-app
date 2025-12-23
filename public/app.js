@@ -2,10 +2,10 @@
 API ENDPOINTS
 ========================= */
 const API = {
-    GET: "/api/getNotes",
-    ADD: "/api/addNote",
-    EDIT: "/api/editNote",
-    DELETE: "/api/deleteNote"
+    GET: "api/getNotes",
+    ADD: "api/addNote",
+    EDIT: "api/editNote",
+    DELETE: "api/deleteNote"
 };
 
 /* =========================
@@ -81,9 +81,9 @@ function renderNotes() {
             <div class="note-footer">
                 <small>📅 ${note.reminderDate || "No reminder"}</small>
                 <div class="actions">
-                    <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="/icons/pen.png" alt="edit" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="/icons/delete.png" alt="delete" class="notes-btn"/></button>
+                    <button class="done-btn"><img src="icons/checked.png" alt="check" class="notes-btn"/></button>
+                    <button class="edit-btn"><img src="icons/pen.png" alt="edit" class="notes-btn"/></button>
+                    <button class="delete-btn"><img src="icons/delete.png" alt="delete" class="notes-btn"/></button>
                 </div>
             </div>
         `;
