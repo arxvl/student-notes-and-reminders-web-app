@@ -102,7 +102,7 @@ function renderNotes() {
 SEARCH NOTES
 ========================= */
 
-searchInput.addEventListener('input', () => {
+searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filteredNotes = notes.filter(note =>{
         const matchesFilter = currentFilter === "All" || note.category === currentFilter;
@@ -118,7 +118,7 @@ searchInput.addEventListener('input', () => {
         return;
     }
 
-    filtered.forEach(note => {
+    filteredNotes.forEach(note => {
         const card = document.createElement("div");
         card.className = `card note-card ${note.isCompleted ? "completed" : ""}`;
 
@@ -133,9 +133,9 @@ searchInput.addEventListener('input', () => {
             <div class="note-footer">
                 <small>📅 ${note.reminderDate || "No reminder"}</small>
                 <div class="actions">
-                    <button class="done-btn"><img src="icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="icons/pen.png" alt="check" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="icons/delete.png" alt="check" class="notes-btn"/></button>
+                    <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
+                    <button class="edit-btn"><img src="/icons/pen.png" alt="check" class="notes-btn"/></button>
+                    <button class="delete-btn"><img src="/icons/delete.png" alt="check" class="notes-btn"/></button>
                 </div>
             </div>
         `;
@@ -196,36 +196,28 @@ function startEdit(note) {
 /* =========================
 DELETE / COMPLETE
 ========================= */
-// For deleting note/s
-
 async function deleteNote(id) {
-    if (!confirm("Are you sure you want to delete this note?")) {
-        await fetch(`${API_URL}/${id}`, {
-            method: "DELETE"
-        });
-        fetchNotes();
-    }
+    if (!confirm("Are you sure you want to delete this note?")) return;
+
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    fetchNotes();
 }
 
-// For marking note as complete/incomplete
 async function toggleComplete(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
-    const updatedNote = { ...note, isCompleted: !note.isCompleted };
+    await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            ...note,
+            isCompleted: !note.isCompleted
+        })
+    });
 
-    try {
-        await fetch(${API_URL}/${id}, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedNote)
-        });
-        fetchNotes();
-    } catch (error) {
-        console.error("Error updating status:", error);
-    }
+    fetchNotes();
 }
-
 
 /* =========================
 FILTERS
@@ -234,8 +226,7 @@ filterButtons.forEach(btn => {
     btn.onclick = () => {
         filterButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        currentFilter = btn.innerText; 
-        
+        currentFilter = btn.textContent;
         renderNotes();
     };
 });
