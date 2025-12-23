@@ -2,11 +2,19 @@
   "name": "student-notes-and-reminder-web-app",
   "version": "1.0.0",
   "description": "Student Notes and Reminders Web App",
-  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "dev": "vercel dev"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
-    "@supabase/supabase-js": "^2.89.0"
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }

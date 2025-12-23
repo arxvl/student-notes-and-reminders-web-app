@@ -1,12 +1,4 @@
-/* =========================
-API ENDPOINTS
-========================= */
-const API = {
-    GET: "/api/getNotes",
-    ADD: "/api/addNote",
-    EDIT: "/api/editNote",
-    DELETE: "/api/deleteNote"
-};
+const API_URL = "/api/notes";
 
 /* =========================
 THEME TOGGLE
@@ -28,7 +20,7 @@ const categorySelect = form.querySelector("select");
 const dateInput = form.querySelector("input[type='date']");
 const notesList = document.querySelector(".notes-list");
 const filterButtons = document.querySelectorAll(".filter-btn");
-const searchInput = document.getElementById('searchInput'); 
+const searchInput = document.getElementById("searchInput");
 
 let notes = [];
 let currentFilter = "All";
@@ -45,24 +37,19 @@ if ("Notification" in window && Notification.permission === "default") {
 FETCH NOTES
 ========================= */
 async function fetchNotes() {
-    try {
-        const res = await fetch(API.GET);
-        notes = await res.json();
-        renderNotes();
-        checkReminders();
-    } catch (err) {
-        console.error("Error fetching notes:", err);
-        notesList.innerHTML = "<p>Unable to fetch notes.</p>";
-    }
+    const res = await fetch(API_URL);
+    notes = await res.json();
+    renderNotes();
+    checkReminders();
 }
 
 /* =========================
 RENDER NOTES
 ========================= */
-function renderNotes() {
+function renderNotes(filteredNotes = notes) {
     notesList.innerHTML = "";
 
-    const filtered = notes.filter(n =>
+    const filtered = filteredNotes.filter(n =>
         currentFilter === "All" || n.category === currentFilter
     );
 
@@ -86,9 +73,15 @@ function renderNotes() {
             <div class="note-footer">
                 <small>📅 ${note.reminderDate || "No reminder"}</small>
                 <div class="actions">
-                    <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="/icons/pen.png" alt="edit" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="/icons/delete.png" alt="delete" class="notes-btn"/></button>
+                    <button class="done-btn">
+                        <img src="icons/checked.png" class="notes-btn">
+                    </button>
+                    <button class="edit-btn">
+                        <img src="icons/pen.png" class="notes-btn">
+                    </button>
+                    <button class="delete-btn">
+                        <img src="icons/delete.png" class="notes-btn">
+                    </button>
                 </div>
             </div>
         `;
@@ -104,49 +97,20 @@ function renderNotes() {
 /* =========================
 SEARCH NOTES
 ========================= */
-searchInput.addEventListener('input', (e) => {
+searchInput.addEventListener("input", (e) => {
     const searchTerm = e.target.value.toLowerCase();
+
     const filteredNotes = notes.filter(note => {
-        const matchesFilter = currentFilter === "All" || note.category === currentFilter;
-        const matchesSearch = note.title.toLowerCase().includes(searchTerm) || note.content.toLowerCase().includes(searchTerm);
+        const matchesFilter =
+            currentFilter === "All" || note.category === currentFilter;
+        const matchesSearch =
+            note.title.toLowerCase().includes(searchTerm) ||
+            note.content.toLowerCase().includes(searchTerm);
+
         return matchesFilter && matchesSearch;
     });
 
-    notesList.innerHTML = "";
-
-    if (!filteredNotes.length) {
-        notesList.innerHTML = "<p>No notes found.</p>";
-        return;
-    }
-
-    filteredNotes.forEach(note => {
-        const card = document.createElement("div");
-        card.className = `card note-card ${note.isCompleted ? "completed" : ""}`;
-
-        card.innerHTML = `
-            <div class="note-header">
-                <h3>${note.title}</h3>
-                <span class="category ${note.category.toLowerCase()}">
-                    ${note.category}
-                </span>
-            </div>
-            <p>${note.content}</p>
-            <div class="note-footer">
-                <small>📅 ${note.reminderDate || "No reminder"}</small>
-                <div class="actions">
-                    <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="/icons/pen.png" alt="edit" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="/icons/delete.png" alt="delete" class="notes-btn"/></button>
-                </div>
-            </div>
-        `;
-
-        card.querySelector(".done-btn").onclick = () => toggleComplete(note.id);
-        card.querySelector(".delete-btn").onclick = () => deleteNote(note.id);
-        card.querySelector(".edit-btn").onclick = () => startEdit(note);
-
-        notesList.appendChild(card);
-    });
+    renderNotes(filteredNotes);
 });
 
 /* =========================
@@ -163,27 +127,23 @@ form.onsubmit = async (e) => {
         isCompleted: false
     };
 
-    try {
-        if (editId) {
-            await fetch(`${API.EDIT}?id=${editId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(noteData)
-            });
-            editId = null;
-        } else {
-            await fetch(API.ADD, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(noteData)
-            });
-        }
-
-        form.reset();
-        fetchNotes();
-    } catch (err) {
-        console.error("Error saving note:", err);
+    if (editId) {
+        await fetch(`${API_URL}/${editId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(noteData)
+        });
+        editId = null;
+    } else {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(noteData)
+        });
     }
+
+    form.reset();
+    fetchNotes();
 };
 
 function startEdit(note) {
@@ -198,13 +158,9 @@ function startEdit(note) {
 DELETE / COMPLETE
 ========================= */
 async function deleteNote(id) {
-    if (!confirm("Are you sure you want to delete this note?")) return;
-
-    try {
-        await fetch(`${API.DELETE}?id=${id}`, { method: "DELETE" });
+    if (confirm("Are you sure you want to delete this note?")) {
+        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
         fetchNotes();
-    } catch (err) {
-        console.error("Error deleting note:", err);
     }
 }
 
@@ -212,16 +168,15 @@ async function toggleComplete(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
-    try {
-        await fetch(`${API.EDIT}?id=${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...note, isCompleted: !note.isCompleted })
-        });
-        fetchNotes();
-    } catch (err) {
-        console.error("Error toggling note:", err);
-    }
+    const updatedNote = { ...note, isCompleted: !note.isCompleted };
+
+    await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedNote)
+    });
+
+    fetchNotes();
 }
 
 /* =========================
@@ -231,7 +186,7 @@ filterButtons.forEach(btn => {
     btn.onclick = () => {
         filterButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        currentFilter = btn.textContent;
+        currentFilter = btn.innerText;
         renderNotes();
     };
 });
@@ -251,7 +206,7 @@ function checkReminders() {
             !note.notified
         ) {
             new Notification("Reminder", {
-                body: note.title + ": " + note.content
+                body: `${note.title}: ${note.content}`
             });
 
             note.notified = true;
