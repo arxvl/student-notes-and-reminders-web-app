@@ -1,9 +1,16 @@
-const API_URL = "/api/notes";
+/* =========================
+API ENDPOINTS
+========================= */
+const API = {
+    GET: "/api/getNotes",
+    ADD: "/api/addNote",
+    EDIT: "/api/editNote",
+    DELETE: "/api/deleteNote"
+};
 
 /* =========================
 THEME TOGGLE
 ========================= */
-
 const themeToggle = document.getElementById("themeToggle");
 themeToggle.onclick = () => {
     document.body.classList.toggle("dark");
@@ -14,7 +21,6 @@ themeToggle.onclick = () => {
 /* =========================
 DOM ELEMENTS
 ========================= */
-
 const form = document.querySelector("#noteForm");
 const titleInput = form.querySelector("input[type='text']");
 const contentInput = form.querySelector("textarea");
@@ -31,7 +37,6 @@ let editId = null;
 /* =========================
 NOTIFICATION PERMISSION
 ========================= */
-
 if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
 }
@@ -39,9 +44,8 @@ if ("Notification" in window && Notification.permission === "default") {
 /* =========================
 FETCH NOTES
 ========================= */
-
 async function fetchNotes() {
-    const res = await fetch(API_URL);
+    const res = await fetch(API.GET);
     notes = await res.json();
     renderNotes();
     checkReminders();
@@ -50,7 +54,6 @@ async function fetchNotes() {
 /* =========================
 RENDER NOTES
 ========================= */
-
 function renderNotes() {
     notesList.innerHTML = "";
 
@@ -78,9 +81,9 @@ function renderNotes() {
             <div class="note-footer">
                 <small>📅 ${note.reminderDate || "No reminder"}</small>
                 <div class="actions">
-                    <button class="done-btn"><img src="icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="icons/pen.png" alt="check" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="icons/delete.png" alt="check" class="notes-btn"/></button>
+                    <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
+                    <button class="edit-btn"><img src="/icons/pen.png" alt="edit" class="notes-btn"/></button>
+                    <button class="delete-btn"><img src="/icons/delete.png" alt="delete" class="notes-btn"/></button>
                 </div>
             </div>
         `;
@@ -101,19 +104,17 @@ function renderNotes() {
 /* =========================
 SEARCH NOTES
 ========================= */
-
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
-    const filteredNotes = notes.filter(note =>{
+    const filteredNotes = notes.filter(note => {
         const matchesFilter = currentFilter === "All" || note.category === currentFilter;
         const matchesSearch = note.title.toLowerCase().includes(searchTerm) || note.content.toLowerCase().includes(searchTerm);
         return matchesFilter && matchesSearch;
-    })
+    });
 
-    //Render the filtered notes
     notesList.innerHTML = "";
 
-    if(!filteredNotes.length){
+    if (!filteredNotes.length) {
         notesList.innerHTML = "<p>No notes found.</p>";
         return;
     }
@@ -134,8 +135,8 @@ searchInput.addEventListener('input', (e) => {
                 <small>📅 ${note.reminderDate || "No reminder"}</small>
                 <div class="actions">
                     <button class="done-btn"><img src="/icons/checked.png" alt="check" class="notes-btn"/></button>
-                    <button class="edit-btn"><img src="/icons/pen.png" alt="check" class="notes-btn"/></button>
-                    <button class="delete-btn"><img src="/icons/delete.png" alt="check" class="notes-btn"/></button>
+                    <button class="edit-btn"><img src="/icons/pen.png" alt="edit" class="notes-btn"/></button>
+                    <button class="delete-btn"><img src="/icons/delete.png" alt="delete" class="notes-btn"/></button>
                 </div>
             </div>
         `;
@@ -154,7 +155,6 @@ searchInput.addEventListener('input', (e) => {
 /* =========================
 ADD / EDIT NOTE
 ========================= */
-
 form.onsubmit = async (e) => {
     e.preventDefault();
 
@@ -167,14 +167,14 @@ form.onsubmit = async (e) => {
     };
 
     if (editId) {
-        await fetch(`${API_URL}/${editId}`, {
+        await fetch(API.EDIT, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(noteData)
+            body: JSON.stringify({ ...noteData, id: editId })
         });
         editId = null;
     } else {
-        await fetch(API_URL, {
+        await fetch(API.ADD, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(noteData)
@@ -199,7 +199,12 @@ DELETE / COMPLETE
 async function deleteNote(id) {
     if (!confirm("Are you sure you want to delete this note?")) return;
 
-    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    await fetch(API.DELETE, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+
     fetchNotes();
 }
 
@@ -207,7 +212,7 @@ async function toggleComplete(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
-    await fetch(`${API_URL}/${id}`, {
+    await fetch(API.EDIT, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -234,7 +239,6 @@ filterButtons.forEach(btn => {
 /* =========================
 REMINDER NOTIFICATIONS
 ========================= */
-
 function checkReminders() {
     if (Notification.permission !== "granted") return;
 
@@ -258,5 +262,4 @@ function checkReminders() {
 /* =========================
 INIT
 ========================= */
-
 fetchNotes();
