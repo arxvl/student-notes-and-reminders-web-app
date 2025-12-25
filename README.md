@@ -47,11 +47,10 @@ student-notes-and-reminder-web-app/
 │
 ├── public/
 │   ├── index.html        # Frontend UI
-│   ├── style.css         # Pixel RPG theme styles
+│   ├── style.css         # For styling
 │   └── app.js            # Frontend logic (Fetch API)
 │
 ├── notes.json            # Notes database (JSON)
-├── users.json            # Users database (JSON)
 ├── server.js             # Backend server (Express)
 ├── package.json          # Project dependencies
 ├── .gitignore            # Git ignore file
